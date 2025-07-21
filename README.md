@@ -6,7 +6,7 @@ A visually rich, interactive single-page application (SPA) built in HTML/CSS/JS 
 
 ## 🌐 Live Preview
 
-[📎 View Interactive Report (GitHub Pages)](https://yourusername.github.io/Smart-Home-Security-Report)
+[📎 View Interactive Report (GitHub Pages)](https://SecWithHarsh.github.io/Smart-Home-Security-Report)
 
 ---
 
@@ -22,12 +22,6 @@ A visually rich, interactive single-page application (SPA) built in HTML/CSS/JS 
 
 ---
 
-## 📊 Screenshots
-
-| Threat Cards | CVE Filter | India Market Charts |
-|--------------|------------|----------------------|
-| ![card](assets/cards.png) | ![filter](assets/filter.png) | ![chart](assets/charts.png) |
-
 ---
 
 ## 🛠️ Technologies Used
@@ -37,7 +31,7 @@ A visually rich, interactive single-page application (SPA) built in HTML/CSS/JS 
 - Vanilla JavaScript
 - Chart.js
 - Scroll-smooth + Modal interactivity
-- (Optional) Gemini API integration (LLM)
+-  Gemini API integration (LLM)
 
 ---
 
@@ -61,10 +55,10 @@ A visually rich, interactive single-page application (SPA) built in HTML/CSS/JS 
 
 ## ✍️ Author
 
-**[Your Name]**  
+**Harsh Raj**  
 Cybersecurity Researcher | IoT Enthusiast | Front-End Developer  
-🔗 [Portfolio Website](https://yourportfolio.com)  
-🐙 [GitHub Profile](https://github.com/yourusername)
+🔗 [Portfolio Website](https://SecWithHarsh.github.io)  
+🐙 [GitHub Profile](https://github.com/SecWithHarsh)
 
 ---
 
