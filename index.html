@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploring Vulnerabilities in Smart Homes - An Interactive Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Warm Neutrals with Tech Blue accents -->
+    <!-- Application Structure Plan: The SPA is designed as a narrative journey, starting from a broad overview and progressively drilling down into technical details, real-world examples, and protective measures. This thematic, top-down structure is more intuitive for learning than a rigid chapter-based format. The user flow is: 1. Introduction (The 'Why'). 2. Landscape & Architecture (The 'What' and 'How'). 3. Vulnerabilities (The 'Weaknesses'). 4. Case Studies (The 'Proof'). 5. Indian Market (The 'Relevance'). 6. Defense (The 'Solution'). 7. Future (The 'Next'). This structure guides users from general awareness to specific knowledge and actionable advice, making complex cybersecurity concepts digestible. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Indian Smart Home Market Size & Categories. Goal: Show growth and composition. Viz/Method: Bar Chart (Growth) & Donut Chart (Share) using Chart.js. Interaction: Tooltips on hover for precise data. Justification: Best for time-series and proportional data.
+        - Report Info: Device Types & Threat Surface. Goal: Organize and detail threats per device. Viz/Method: Interactive HTML/CSS cards. Interaction: Click to expand/collapse info. Justification: Prevents information overload, allows user-driven exploration.
+        - Report Info: Network Protocols. Goal: Explain communication channels and their risks. Viz/Method: HTML/CSS diagram. Interaction: Click on protocol name to show details in a modal. Justification: Visually represents network structure without complex SVG, making it easy to understand connections.
+        - Report Info: Vulnerability List (CVEs). Goal: Create a reference for specific flaws. Viz/Method: Filterable HTML list. Interaction: Text search to dynamically filter list items. Justification: High utility for users looking for specific information.
+        - Report Info: Mirai Botnet Timeline. Goal: Narrate a complex event. Viz/Method: Vertical timeline with HTML/CSS. Interaction: Scroll-based discovery. Justification: Clearly shows the sequence and impact of events.
+        - Report Info: Best Practices. Goal: Provide actionable advice. Viz/Method: Interactive checklist/accordion. Interaction: Click to reveal details. Justification: User-friendly, easy to digest, and encourages engagement with security measures.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa; 
+            color: #343a40;
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0056b3; 
+            border-bottom-color: #0056b3;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+            padding-left: 2.5rem; 
+        }
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: #007bff;
+            border-radius: 50%;
+            border: 4px solid #e9ecef;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 25px;
+            width: 2px;
+            height: 100%;
+            background-color: #dee2e6;
+        }
+        .timeline-item:last-child::after {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-blue-800">Smart Home Security</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#introduction" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Introduction</a>
+                        <a href="#landscape" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Landscape</a>
+                        <a href="#vulnerabilities" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Vulnerabilities</a>
+                        <a href="#casestudies" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Case Studies</a>
+                        <a href="#india" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">India Focus</a>
+                        <a href="#defense" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Defense</a>
+                        <a href="#future" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Future</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <section id="introduction" class="py-16 text-center">
+            <h2 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+                <span class="block">Your Smart Home's</span>
+                <span class="block text-blue-600">Hidden Dangers</span>
+            </h2>
+            <p class="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
+                Welcome to our interactive exploration of smart home vulnerabilities. In India and across the globe, millions are embracing the convenience of IoT devices. But with every new smart light, speaker, or camera, we unknowingly expand our digital footprint and expose ourselves to new risks. This report breaks down the threats, shows you what's at stake, and guides you on how to protect your digital home.
+            </p>
+        </section>
+
+        <section id="landscape" class="py-16 bg-white rounded-xl shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-gray-900">The Smart Home Landscape</h2>
+                    <p class="mt-4 text-lg text-gray-600">To understand the risks, we first need to understand the components. A smart home is a complex ecosystem of devices and protocols. This section explores the key device types and the network architecture that connects them, highlighting how each part can be a potential entry point for attackers.</p>
+                </div>
+
+                <div class="mt-12">
+                    <h3 class="text-2xl font-semibold text-center text-gray-800 mb-8">Common Device Types & Their Threat Surface</h3>
+                    <div id="device-cards-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    </div>
+                </div>
+
+                <div class="mt-20">
+                    <h3 class="text-2xl font-semibold text-center text-gray-800 mb-8">Network Architecture & Protocols</h3>
+                    <p class="text-center max-w-3xl mx-auto text-gray-600 mb-12">Your smart devices communicate using various protocols. Each has its own strengths and weaknesses. Click on a protocol to learn more about its role and associated risks.</p>
+                    <div class="max-w-4xl mx-auto p-8 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex flex-col items-center space-y-4">
+                            <div class="p-4 bg-red-100 border-2 border-red-400 rounded-lg text-center font-bold">INTERNET</div>
+                            <div class="w-2 h-8 bg-gray-400"></div>
+                            <div class="p-4 bg-blue-100 border-2 border-blue-400 rounded-lg text-center font-bold">Router / Modem</div>
+                            <div class="w-full flex justify-center items-center mt-4">
+                               <div class="w-1/3 h-2 bg-gray-400"></div>
+                               <div class="w-2 h-16 bg-gray-400"></div>
+                               <div class="w-1/3 h-2 bg-gray-400"></div>
+                            </div>
+                            <div class="w-full flex justify-around">
+                                <button class="protocol-btn p-3 bg-green-100 border-2 border-green-400 rounded-lg" data-protocol="wifi">Wi-Fi</button>
+                                <button class="protocol-btn p-3 bg-purple-100 border-2 border-purple-400 rounded-lg" data-protocol="zigbee">Zigbee / Z-Wave</button>
+                                <button class="protocol-btn p-3 bg-yellow-100 border-2 border-yellow-400 rounded-lg" data-protocol="bluetooth">Bluetooth</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="vulnerabilities" class="py-16">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-900">Vulnerability Database</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Here we list common vulnerabilities found in smart devices, complete with real-world CVE (Common Vulnerabilities and Exposures) examples. Use the search bar to filter by device, vulnerability type, or CVE number to see how specific products can be at risk.</p>
+            </div>
+            <div class="mt-12 max-w-4xl mx-auto">
+                <input type="text" id="vulnerability-search" class="w-full p-3 border border-gray-300 rounded-lg mb-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Search vulnerabilities (e.g., 'camera', 'default password', 'CVE-2020-9377')...">
+                <div id="vulnerability-list" class="space-y-4">
+                </div>
+            </div>
+        </section>
+
+        <section id="casestudies" class="py-16 bg-white rounded-xl shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-gray-900">Case Studies: When Things Go Wrong</h2>
+                    <p class="mt-4 text-lg text-gray-600">Theoretical risks become real threats when exploited. These case studies show the massive impact of smart home vulnerabilities. We will look at the Mirai botnet, which hijacked IoT devices to launch massive cyberattacks, and a backdoor found in popular TP-Link routers.</p>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6">The Mirai Botnet</h3>
+                        <div class="relative">
+                            <div id="mirai-timeline" class="space-y-8">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6">TP-Link Router Backdoor</h3>
+                        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <h4 class="font-bold text-lg">The Flaw (CVE-2017-7405)</h4>
+                            <p class="mt-2 text-gray-700">A critical vulnerability was discovered in several TP-Link router models. The device's web-based management interface was accessible from the WAN side without authentication. This meant anyone on the internet could potentially access the router's settings.</p>
+                            <h4 class="font-bold text-lg mt-4">The Impact</h4>
+                            <p class="mt-2 text-gray-700">An attacker could exploit this to change DNS settings, redirecting users to malicious websites for phishing or malware injection. They could also change Wi-Fi passwords, lock users out of their own network, or use the router as a pivot point to attack other devices in the home.</p>
+                             <h4 class="font-bold text-lg mt-4">The Fix</h4>
+                            <p class="mt-2 text-gray-700">TP-Link released firmware updates to patch the vulnerability. However, millions of users who never update their router firmware remained at risk for a long time. This highlights the critical importance of keeping device firmware up-to-date.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="india" class="py-16">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-900">The Indian Smart Home Market</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">The adoption of smart home devices in India is growing at a phenomenal rate. This rapid expansion, however, often outpaces consumer awareness of the security risks involved. The charts below illustrate the market's growth and composition, providing context for the increasing threat landscape in the country.</p>
+            </div>
+            <div class="mt-12 grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-xl font-semibold text-center mb-4">Smart Home Device Shipments in India (in Millions)</h3>
+                    <div class="chart-container">
+                        <canvas id="indiaMarketGrowthChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-center mb-4">Market Share by Category (2024 Estimate)</h3>
+                    <div class="chart-container" style="height:350px; max-height: 400px;">
+                        <canvas id="indiaMarketShareChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="defense" class="py-16 bg-white rounded-xl shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-gray-900">Your Line of Defense</h2>
+                    <p class="mt-4 text-lg text-gray-600">Securing your smart home doesn't require you to be a cybersecurity expert. By following some fundamental best practices, you can significantly reduce your risk. This section provides a checklist of actionable steps you can take today to protect your digital life.</p>
+                </div>
+                <div id="best-practices-container" class="mt-12 max-w-3xl mx-auto">
+                </div>
+                <div class="text-center mt-8">
+                    <button id="generate-more-tips-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105">
+                        ✨ Generate More Tips
+                    </button>
+                    <div id="tips-loading-indicator" class="hidden mt-4 text-blue-600">Generating tips...</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="future" class="py-16">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-900">The Future of Smart Home Security</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">The battle for the smart home is constantly evolving. As technology advances, so do the threats and our methods of defense. Here, we look at the emerging role of Artificial Intelligence in security and the new challenges on the horizon, along with government guidelines aimed at creating a safer IoT ecosystem in India.</p>
+            </div>
+            <div class="mt-12 grid md:grid-cols-2 gap-12">
+                <div class="bg-gray-100 p-8 rounded-lg">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">AI: The Double-Edged Sword</h3>
+                    <p class="text-gray-700 mb-4"><strong class="text-green-600">As a Defender:</strong> AI can monitor your network traffic for unusual patterns, automatically detecting and blocking potential threats in real-time. It can learn the 'normal' behaviour of your devices and flag any deviations that might indicate a compromise.</p>
+                    <p class="text-gray-700"><strong class="text-red-600">As an Attacker:</strong> Malicious actors can use AI to automate attacks, find vulnerabilities faster, and create more sophisticated phishing scams. AI-powered malware could adapt and change to avoid detection, making it much harder to fight.</p>
+                </div>
+                <div class="bg-gray-100 p-8 rounded-lg">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Government Policies & Guidelines</h3>
+                    <p class="text-gray-700">Recognising the threat, the Indian government, through bodies like CERT-In, has started issuing guidelines for IoT device manufacturers and users. Key recommendations often include:</p>
+                    <ul class="list-disc list-inside mt-4 space-y-2 text-gray-700">
+                        <li>No default passwords.</li>
+                        <li>Secure update mechanisms.</li>
+                        <li>Data encryption by default.</li>
+                        <li>Vulnerability disclosure programs.</li>
+                    </ul>
+                    <p class="mt-4 text-gray-700">These are steps in the right direction, but widespread adoption and enforcement remain a challenge.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <h3 class="text-2xl font-bold">Conclusion</h3>
+            <p class="mt-4 max-w-3xl mx-auto text-gray-300">The smart home revolution offers incredible convenience, but it comes with responsibility. Security is not a one-time setup but an ongoing process of vigilance. By understanding the risks and adopting simple, effective security habits, we can enjoy the benefits of a connected life without compromising our safety and privacy.</p>
+            <p class="mt-6 text-sm text-gray-400">Interactive Report created on July 20, 2025. Data is illustrative.</p>
+        </div>
+    </footer>
+    
+    <div id="protocol-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button id="modal-close-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
+            <p id="modal-description" class="text-gray-700 mb-4"></p>
+            <h4 class="font-semibold text-lg mb-2">Common Risks:</h4>
+            <ul id="modal-risks" class="list-disc list-inside space-y-1 text-gray-700"></ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const deviceData = [
+                { name: "Smart Speakers & Displays", icon: "🔊", threats: ["Eavesdropping on conversations", "Unauthorized purchases", "Exploiting connected services"] },
+                { name: "Security Cameras & Doorbells", icon: "📹", threats: ["Spying on household members", "Disabling recording during a break-in", "Using weak passwords for access"] },
+                { name: "Smart Lighting & Plugs", icon: "💡", threats: ["Network entry point for deeper attacks", "Flickering lights to signal information", "Vulnerable to firmware hijacking", "Can be used to create a botnet"] },
+                { name: "Smart Locks & Garage Doors", icon: "🔒", threats: ["Unauthorized remote unlocking", "Brute-force attacks on PINs", "Signal jamming to prevent locking"] },
+                { name: "Thermostats & Appliances", icon: "🌡️", threats: ["Joining a botnet for DDoS attacks", "Manipulating temperature to cause damage", "Leaking data about your daily routines"] },
+                { name: "Routers - The Gateway", icon: "📡", threats: ["The single most critical point of failure", "DNS hijacking to redirect traffic", "Hosting malware directly on the router"] }
+            ];
+
+            const deviceCardsContainer = document.getElementById('device-cards-container');
+            deviceData.forEach(device => {
+                const card = document.createElement('div');
+                card.className = 'card bg-gray-50 p-6 rounded-lg border border-gray-200 cursor-pointer';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-4">${device.icon}</span>
+                            <h4 class="font-semibold text-lg text-gray-800">${device.name}</h4>
+                        </div>
+                        <span class="text-gray-400 transform transition-transform duration-300">&#9662;</span>
+                    </div>
+                    <div class="threat-details hidden mt-4 pl-12">
+                        <h5 class="font-semibold text-gray-700 mb-2">Potential Threats:</h5>
+                        <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                            ${device.threats.map(threat => `<li>${threat}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    card.querySelector('.threat-details').classList.toggle('hidden');
+                    card.querySelector('.text-gray-400').classList.toggle('rotate-180');
+                });
+                deviceCardsContainer.appendChild(card);
+            });
+
+            const vulnerabilitiesData = [
+                { cve: 'CVE-2017-17215', device: 'Router', type: 'Remote Code Execution', description: 'A vulnerability in Huawei HG532 devices allows remote attackers to execute arbitrary commands via a crafted UPnP request.' },
+                { cve: 'N/A', device: 'Various', type: 'Default Passwords', description: 'Many IoT devices ship with simple, well-known default credentials (like admin/admin) that users never change, providing an easy entry point.' },
+                { cve: 'CVE-2020-9377', device: 'Security Camera', type: 'Data Exposure', description: 'Some D-Link IP cameras had a flaw that could allow an attacker to access the live video and audio feed without authentication.' },
+                { cve: 'CVE-2019-11219', device: 'Smart Plug', type: 'Firmware Hijacking', description: 'TP-Link Kasa smart plugs were vulnerable to an attack where a malicious firmware could be installed without proper validation.' },
+                { cve: 'N/A', device: 'Various', type: 'Unencrypted Communication', description: 'Many devices transmit data, including credentials or personal information, over the local network in plain text, making it easy to intercept.' },
+                { cve: 'CVE-2018-10656', device: 'Smart Lock', type: 'Authentication Bypass', description: 'Certain August smart locks could be tricked into revealing Wi-Fi credentials to an attacker in close proximity.' }
+            ];
+
+            const vulnerabilityList = document.getElementById('vulnerability-list');
+            const vulnerabilitySearch = document.getElementById('vulnerability-search');
+
+            function renderVulnerabilities(filter = '') {
+                vulnerabilityList.innerHTML = '';
+                const filteredData = vulnerabilitiesData.filter(v => 
+                    v.cve.toLowerCase().includes(filter) ||
+                    v.device.toLowerCase().includes(filter) ||
+                    v.type.toLowerCase().includes(filter) ||
+                    v.description.toLowerCase().includes(filter)
+                );
+
+                if (filteredData.length === 0) {
+                    vulnerabilityList.innerHTML = `<p class="text-center text-gray-500">No results found.</p>`;
+                    return;
+                }
+
+                filteredData.forEach(v => {
+                    const item = document.createElement('div');
+                    item.className = 'bg-white p-4 rounded-lg border border-gray-200';
+                    item.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-blue-700">${v.type}</h4>
+                            <span class="text-sm font-mono bg-gray-200 text-gray-700 px-2 py-1 rounded">${v.cve}</span>
+                        </div>
+                        <p class="text-gray-600 mt-2">${v.description}</p>
+                        <p class="text-sm text-gray-500 mt-2"><strong>Affected Device Type:</strong> ${v.device}</p>
+                        <button class="explain-vulnerability-btn mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                            ✨ Explain More
+                        </button>
+                        <div class="llm-explanation mt-4 hidden text-gray-700 bg-blue-50 p-3 rounded-md border border-blue-200"></div>
+                    `;
+                    vulnerabilityList.appendChild(item);
+
+                    const explainBtn = item.querySelector('.explain-vulnerability-btn');
+                    const llmExplanationDiv = item.querySelector('.llm-explanation');
+
+                    explainBtn.addEventListener('click', async () => {
+                        if (llmExplanationDiv.classList.contains('hidden')) {
+                            llmExplanationDiv.classList.remove('hidden');
+                            llmExplanationDiv.innerHTML = '<p class="text-blue-600">Generating explanation...</p>';
+                            
+                            let chatHistory = [];
+                            const prompt = `Explain the cybersecurity vulnerability "${v.type}" (${v.cve ? v.cve : 'No CVE'}) affecting "${v.device}" in simple terms, focusing on how it works and its potential impact on a smart home. Keep it concise, like a paragraph or two. Use Indian English.`;
+                            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                            const payload = { contents: chatHistory };
+                            const apiKey = ""; 
+                            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                            try {
+                                const response = await fetch(apiUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(payload)
+                                });
+                                const result = await response.json();
+                                if (result.candidates && result.candidates.length > 0 &&
+                                    result.candidates[0].content && result.candidates[0].content.parts &&
+                                    result.candidates[0].content.parts.length > 0) {
+                                    const text = result.candidates[0].content.parts[0].text;
+                                    llmExplanationDiv.innerHTML = text;
+                                } else {
+                                    llmExplanationDiv.innerHTML = '<p class="text-red-600">Failed to get explanation. Please try again.</p>';
+                                }
+                            } catch (error) {
+                                console.error('Error calling Gemini API:', error);
+                                llmExplanationDiv.innerHTML = '<p class="text-red-600">Error fetching explanation. Check console for details.</p>';
+                            }
+                        } else {
+                            llmExplanationDiv.classList.add('hidden');
+                        }
+                    });
+                });
+            }
+            vulnerabilitySearch.addEventListener('input', (e) => renderVulnerabilities(e.target.value.toLowerCase()));
+            renderVulnerabilities();
+
+            const miraiTimelineData = [
+                { time: "August 2016", event: "Mirai malware is created. It starts scanning the internet for IoT devices protected only by factory-default usernames and passwords." },
+                { time: "September 2016", event: "The Mirai botnet is used to launch a massive Distributed Denial of Service (DDoS) attack against the website of security journalist Brian Krebs, reaching a then-unprecedented 620 Gbps." },
+                { time: "Late Sept 2016", event: "The source code for Mirai is publicly released on hacker forums, leading to the creation of numerous copycat botnets by other attackers." },
+                { time: "October 2016", event: "A massive Mirai-based DDoS attack targets Dyn, a major DNS provider. This disrupts major websites like Twitter, Netflix, Reddit, and CNN for users across Europe and North America." }
+            ];
+            
+            const miraiTimelineContainer = document.getElementById('mirai-timeline');
+            miraiTimelineData.forEach(item => {
+                const element = document.createElement('div');
+                element.className = 'timeline-item';
+                element.innerHTML = `
+                    <h5 class="font-bold text-lg text-blue-800">${item.time}</h5>
+                    <p class="text-gray-700">${item.event}</p>
+                `;
+                miraiTimelineContainer.appendChild(element);
+            });
+
+            const protocolData = {
+                wifi: { title: "Wi-Fi", description: "The most common protocol, connecting devices directly to your router and the internet. It offers high bandwidth but can be complex to secure properly.", risks: ["Weak password cracking", "Evil Twin attacks (fake Wi-Fi hotspots)", "Packet sniffing on open networks"] },
+                zigbee: { title: "Zigbee / Z-Wave", description: "Low-power mesh networks ideal for small sensors and bulbs. They typically require a central hub to connect to the internet.", risks: ["Replay attacks (capturing and resending commands)", "Signal jamming", "Vulnerabilities in the central hub"] },
+                bluetooth: { title: "Bluetooth", description: "Used for short-range communication, often for initial device setup or connecting peripherals like speakers.", risks: ["Unauthorized pairing (Bluejacking)", "Data interception on older versions", "Denial of service by flooding with requests"] }
+            };
+
+            const modal = document.getElementById('protocol-modal');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            document.querySelectorAll('.protocol-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const protocol = btn.dataset.protocol;
+                    const data = protocolData[protocol];
+                    document.getElementById('modal-title').innerText = data.title;
+                    document.getElementById('modal-description').innerText = data.description;
+                    const riskList = document.getElementById('modal-risks');
+                    riskList.innerHTML = data.risks.map(r => `<li>${r}</li>`).join('');
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                });
+            });
+
+            modalCloseBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            });
+            
+            const indiaMarketGrowthCtx = document.getElementById('indiaMarketGrowthChart').getContext('2d');
+            new Chart(indiaMarketGrowthCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2021', '2022', '2023', '2024', '2025 (Proj.)'],
+                    datasets: [{
+                        label: 'Device Shipments (Millions)',
+                        data: [76, 105, 140, 185, 230],
+                        backgroundColor: 'rgba(37, 99, 235, 0.8)',
+                        borderColor: 'rgba(30, 64, 175, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            const indiaMarketShareCtx = document.getElementById('indiaMarketShareChart').getContext('2d');
+            new Chart(indiaMarketShareCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Smart Speakers', 'Security Devices', 'Smart Lighting', 'Smart Appliances', 'Other'],
+                    datasets: [{
+                        label: 'Market Share',
+                        data: [35, 25, 20, 12, 8],
+                        backgroundColor: [ '#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe' ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            const bestPracticesData = [
+                { title: "Change Default Passwords", details: "This is the single most important step. Change the default 'admin' password on your router and all new devices to something long, unique, and complex." },
+                { title: "Enable Two-Factor Authentication (2FA)", details: "For any service that supports it (especially your router and primary accounts like Google/Apple), enable 2FA. This adds a crucial second layer of security." },
+                { title: "Keep Firmware Updated", details: "Manufacturers release updates to patch security holes. Enable automatic updates if possible, or check for new firmware on a regular basis for all your devices." },
+                { title: "Create a Guest Wi-Fi Network", details: "Keep your IoT devices on a separate guest network. This isolates them from your main computers and phones, so if a smart bulb is compromised, it can't easily access your personal data." },
+                { title: "Disable Unused Features", details: "Turn off features you don't use, such as UPnP (Universal Plug and Play) and remote access on your router, as these can be exploited by attackers." }
+            ];
+
+            const bestPracticesContainer = document.getElementById('best-practices-container');
+            const generateMoreTipsBtn = document.getElementById('generate-more-tips-btn');
+            const tipsLoadingIndicator = document.getElementById('tips-loading-indicator');
+
+            function addBestPracticeItem(title, details) {
+                const item = document.createElement('div');
+                item.className = 'bg-gray-50 border border-gray-200 rounded-lg mb-3';
+                item.innerHTML = `
+                    <button class="w-full text-left p-4 flex justify-between items-center font-semibold text-gray-800 focus:outline-none">
+                        <span>${title}</span>
+                        <span class="transform transition-transform duration-300">&#9662;</span>
+                    </button>
+                    <div class="practice-details hidden px-4 pb-4 text-gray-600">
+                        <p>${details}</p>
+                    </div>
+                `;
+                item.querySelector('button').addEventListener('click', () => {
+                    item.querySelector('.practice-details').classList.toggle('hidden');
+                    item.querySelector('button span:last-child').classList.toggle('rotate-180');
+                });
+                bestPracticesContainer.appendChild(item);
+            }
+
+            bestPracticesData.forEach(practice => {
+                addBestPracticeItem(practice.title, practice.details);
+            });
+
+            generateMoreTipsBtn.addEventListener('click', async () => {
+                tipsLoadingIndicator.classList.remove('hidden');
+                generateMoreTipsBtn.disabled = true;
+
+                let chatHistory = [];
+                const prompt = `Provide one concise, practical, and easy-to-implement smart home security tip for an average Indian household. Focus on general advice that hasn't been mentioned yet (e.g., beyond changing default passwords, updating firmware, 2FA, guest Wi-Fi, disabling unused features). Use Indian English.`;
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const newTip = result.candidates[0].content.parts[0].text;
+                        addBestPracticeItem("AI-Generated Tip", newTip);
+                    } else {
+                        addBestPracticeItem("Error", "Failed to generate tip. Please try again.");
+                    }
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    addBestPracticeItem("Error", "Error fetching tip. Check console for details.");
+                } finally {
+                    tipsLoadingIndicator.classList.add('hidden');
+                    generateMoreTipsBtn.disabled = false;
+                }
+            });
+
+
+            const navLinks = document.querySelectorAll('nav a');
+            const sections = document.querySelectorAll('main section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
